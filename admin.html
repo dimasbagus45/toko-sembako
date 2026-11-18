@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f7f1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Dashboard Admin — Sembako Nusa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="admin.css">
+  <script src="data.js" defer></script>
+  <script src="admin.js" defer></script>
+</head>
+<body class="admin-body">
+  <div class="admin-shell" id="admin-shell" hidden>
+    <aside class="admin-sidebar">
+      <a class="brand admin-brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">n</span>
+        <span class="brand-name">sembako<span>nusa</span></span>
+      </a>
+      <span class="sidebar-label">MENU TOKO</span>
+      <nav class="admin-nav" aria-label="Menu dashboard">
+        <button class="admin-nav-item active" type="button" data-view="dashboard"><span aria-hidden="true">▦</span> Ringkasan</button>
+        <button class="admin-nav-item" type="button" data-view="products"><span aria-hidden="true">▤</span> Produk</button>
+        <button class="admin-nav-item" type="button" data-view="orders"><span aria-hidden="true">▧</span> Pesanan</button>
+        <button class="admin-nav-item" type="button" data-view="settings"><span aria-hidden="true">⚙</span> Pengaturan</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="index.html">↗ Lihat toko</a>
+        <button id="logout-button" type="button">↪ Keluar</button>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div>
+          <span class="topbar-overline">AREA PENGELOLA</span>
+          <strong>Sembako Nusa</strong>
+        </div>
+        <span class="admin-avatar" aria-label="Admin">A</span>
+      </header>
+
+      <main class="admin-content">
+        <p class="form-message admin-load-message" id="admin-load-message" role="alert"></p>
+        <div class="security-notice" role="note">
+          <strong>Database MySQL lokal</strong>
+          <span>Produk, foto, pengaturan, pesanan, dan akun tersimpan di database MySQL. Akun admin awal memakai sandi demo; jangan buka server ini ke jaringan publik.</span>
+        </div>
+
+        <section class="admin-view" id="view-dashboard">
+          <div class="admin-page-heading">
+            <div><span class="topbar-overline">TOKO HARI INI</span><h1>Ringkasan toko</h1><p>Pantau produk dan stok yang tersedia.</p></div>
+            <button class="primary-button" type="button" data-open-view="products">Kelola produk <span aria-hidden="true">↗</span></button>
+          </div>
+          <div class="metric-grid">
+            <article class="metric-card"><span class="metric-icon metric-green" aria-hidden="true">▤</span><span class="metric-label">Total produk</span><strong id="metric-products">0</strong><small>Produk di katalog</small></article>
+            <article class="metric-card"><span class="metric-icon metric-yellow" aria-hidden="true">▦</span><span class="metric-label">Jumlah stok</span><strong id="metric-stock">0</strong><small>Unit tercatat di toko</small></article>
+            <article class="metric-card"><span class="metric-icon metric-peach" aria-hidden="true">!</span><span class="metric-label">Stok menipis</span><strong id="metric-low-stock">0</strong><small>Produk dengan stok ≤ 5</small></article>
+            <article class="metric-card"><span class="metric-icon metric-blue" aria-hidden="true">Rp</span><span class="metric-label">Nilai persediaan</span><strong id="metric-value">Rp0</strong><small>Perkiraan harga × stok</small></article>
+          </div>
+          <section class="admin-panel">
+            <div class="panel-heading"><div><h2>Stok perlu diperhatikan</h2><p>Produk dengan persediaan 5 unit atau kurang.</p></div><button class="text-button" type="button" data-open-view="products">Lihat semua produk →</button></div>
+            <div id="low-stock-list"></div>
+          </section>
+          <p class="admin-footnote">Pesanan pelanggan dicatat di database lokal dan tetap dikonfirmasi melalui WhatsApp.</p>
+        </section>
+
+        <section class="admin-view" id="view-products" hidden>
+          <div class="admin-page-heading">
+            <div><span class="topbar-overline">KATALOG TOKO</span><h1>Produk</h1><p>Atur nama, harga, stok, dan informasi produk.</p></div>
+            <button class="primary-button" id="new-product-button" type="button">+ Tambah produk</button>
+          </div>
+          <section class="admin-panel product-manager">
+            <div class="panel-heading product-panel-heading">
+              <div><h2>Daftar produk</h2><p id="products-summary"></p></div>
+              <label class="admin-search"><span aria-hidden="true">⌕</span><input id="admin-search" type="search" placeholder="Cari produk..." aria-label="Cari produk"></label>
+            </div>
+            <div class="table-wrap">
+              <table class="product-table">
+                <thead><tr><th>PRODUK</th><th>KATEGORI</th><th>HARGA</th><th>STOK</th><th></th></tr></thead>
+                <tbody id="admin-product-list"></tbody>
+              </table>
+            </div>
+            <p class="table-empty" id="table-empty" hidden>Produk tidak ditemukan.</p>
+          </section>
+          <section class="admin-panel product-form-panel" id="product-form-panel" hidden>
+            <div class="panel-heading"><div><h2 id="product-form-title">Tambah produk</h2><p>Perubahan akan tampil di katalog toko ini.</p></div><button class="close-form" id="cancel-product-button" type="button" aria-label="Tutup form">×</button></div>
+            <form id="product-form" class="product-form">
+              <input name="id" type="hidden">
+              <label class="admin-field">Nama produk<input name="name" maxlength="70" required></label>
+              <label class="admin-field">Kategori<input name="category" maxlength="40" required></label>
+              <label class="admin-field">Harga (Rp)<input name="price" type="number" min="1" step="1" required></label>
+              <label class="admin-field">Satuan / ukuran<input name="unit" maxlength="25" placeholder="contoh: 1 kg" required></label>
+              <label class="admin-field">Jumlah stok<input name="stock" type="number" min="0" step="1" required></label>
+              <label class="admin-field form-wide">Foto produk
+                <input name="photo" type="file" accept="image/*">
+                <small class="photo-upload-hint">Unggah foto JPG, PNG, WebP, atau GIF (maksimal 1 MB).</small>
+                <img class="photo-upload-preview" id="photo-upload-preview" alt="Pratinjau foto produk" hidden>
+              </label>
+              <label class="admin-field">Label produk <span class="field-optional">(opsional)</span><input name="tag" maxlength="24"></label>
+              <p class="form-message form-wide" id="product-message" role="alert"></p>
+              <div class="form-actions form-wide"><button class="secondary-button" id="cancel-product-action" type="button">Batal</button><button class="primary-button" type="submit">Simpan produk</button></div>
+            </form>
+          </section>
+        </section>
+
+        <section class="admin-view" id="view-orders" hidden>
+          <div class="admin-page-heading">
+            <div><span class="topbar-overline">RIWAYAT TRANSAKSI</span><h1>Pesanan</h1><p>Pesanan dicatat ketika pelanggan menekan checkout.</p></div>
+          </div>
+          <section class="admin-panel product-manager">
+            <div class="panel-heading product-panel-heading">
+              <div><h2>Daftar pesanan</h2><p id="orders-summary"></p></div>
+            </div>
+            <div class="table-wrap">
+              <table class="product-table order-table">
+                <thead><tr><th>TANGGAL</th><th>RINCIAN PESANAN</th><th>TOTAL</th><th>STATUS</th><th></th></tr></thead>
+                <tbody id="admin-order-list"></tbody>
+              </table>
+            </div>
+            <p class="table-empty" id="orders-empty" hidden>Belum ada pesanan tersimpan.</p>
+          </section>
+        </section>
+
+        <section class="admin-view" id="view-settings" hidden>
+          <div class="admin-page-heading">
+            <div><span class="topbar-overline">PREFERENSI TOKO</span><h1>Pengaturan</h1><p>Atur kontak tujuan pesanan WhatsApp.</p></div>
+          </div>
+          <section class="admin-panel settings-panel">
+            <div class="panel-heading"><div><h2>Kontak pemesanan</h2><p>Nomor ini menerima pesan dari tombol checkout di katalog.</p></div></div>
+            <form id="settings-form" class="settings-form">
+              <label class="admin-field">Nomor WhatsApp toko
+                <input name="whatsapp" inputmode="numeric" autocomplete="tel" placeholder="6281234567890" required>
+                <small>Gunakan kode negara, tanpa tanda + atau spasi. Contoh: 6281234567890</small>
+              </label>
+              <p class="form-message" id="settings-message" role="status"></p>
+              <button class="primary-button" type="submit">Simpan pengaturan</button>
+            </form>
+          </section>
+          <section class="admin-panel demo-warning-panel"><strong>Database MySQL</strong><p>Data dapat dilihat dan dikelola melalui phpMyAdmin pada database <code>sembako_nusa</code>. Server aplikasi tetap berjalan lokal pada komputer ini.</p></section>
+        </section>
+      </main>
+    </div>
+  </div>
+  <div class="admin-toast" id="admin-toast" role="status" aria-live="polite"></div>
+</body>
+</html>
